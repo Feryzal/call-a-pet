@@ -1,16 +1,21 @@
 export const handler = async (event, context) => {
-  // Erlaubt nur POST-Anfragen
-  if (event.httpMethod !== 'POST') {
+  // CORS-Header für Preflight-Anfragen
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type'
+  };
+
+  // Behandelt die OPTIONS-Preflight-Anfrage
+  if (event.httpMethod === 'OPTIONS') {
     return {
-      statusCode: 405,
-      body: 'Method Not Allowed',
-      headers: {
-        'Access-Control-Allow-Origin': '*' // Ermöglicht Anfragen von jeder Quelle
-      }
+      statusCode: 200,
+      headers: corsHeaders,
+      body: ''
     };
   }
 
-  // Setzt CORS-Header für eine erfolgreiche Antwort
+  // Setzt CORS-Header für eine erfolgreiche POST-Anfrage
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json'
