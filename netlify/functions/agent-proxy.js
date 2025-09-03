@@ -21,8 +21,21 @@ export const handler = async (event, context) => {
     'Content-Type': 'application/json'
   };
 
-  const { text_input } = JSON.parse(event.body);
-
+  let text_input;
+  try {
+    const body = event.body;
+    if (body) {
+      const data = JSON.parse(body);
+      text_input = data.text_input;
+    }
+  } catch (e) {
+    return {
+      statusCode: 400,
+      body: 'Invalid JSON',
+      headers: headers
+    };
+  }
+  
   // Rufe API-Schlüssel und Agent-ID aus den Umgebungsvariablen ab
   const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
   const ELEVENLABS_AGENT_ID = process.env.ELEVENLABS_AGENT_ID;
