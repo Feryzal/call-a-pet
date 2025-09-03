@@ -1,25 +1,16 @@
 export const handler = async (event, context) => {
-  // CORS-Header für Preflight-Anfragen
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type'
-  };
-
   // Behandelt die OPTIONS-Preflight-Anfrage
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
-      headers: corsHeaders,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      },
       body: ''
     };
   }
-
-  // Setzt CORS-Header für eine erfolgreiche POST-Anfrage
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json'
-  };
 
   let text_input;
   try {
@@ -32,10 +23,12 @@ export const handler = async (event, context) => {
     return {
       statusCode: 400,
       body: 'Invalid JSON',
-      headers: headers
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      }
     };
   }
-  
+
   // Rufe API-Schlüssel und Agent-ID aus den Umgebungsvariablen ab
   const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
   const ELEVENLABS_AGENT_ID = process.env.ELEVENLABS_AGENT_ID;
@@ -44,7 +37,9 @@ export const handler = async (event, context) => {
     return {
       statusCode: 500,
       body: 'API keys not configured.',
-      headers: headers
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      }
     };
   }
 
@@ -66,7 +61,9 @@ export const handler = async (event, context) => {
       return {
         statusCode: response.status,
         body: `ElevenLabs Agent API error: ${errorText}`,
-        headers: headers
+        headers: {
+          'Access-Control-Allow-Origin': '*'
+        }
       };
     }
 
@@ -77,7 +74,7 @@ export const handler = async (event, context) => {
     return {
       statusCode: 200,
       headers: {
-        ...headers,
+        'Access-Control-Allow-Origin': '*',
         'Content-Type': 'audio/mpeg'
       },
       body: Buffer.from(audioData).toString('base64'),
@@ -88,7 +85,9 @@ export const handler = async (event, context) => {
     return {
       statusCode: 500,
       body: `Internal server error: ${error.message}`,
-      headers: headers
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      }
     };
   }
 };
