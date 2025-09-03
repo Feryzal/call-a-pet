@@ -3,9 +3,18 @@ export const handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
-      body: 'Method Not Allowed'
+      body: 'Method Not Allowed',
+      headers: {
+        'Access-Control-Allow-Origin': '*' // Ermöglicht Anfragen von jeder Quelle
+      }
     };
   }
+
+  // Setzt CORS-Header für eine erfolgreiche Antwort
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Content-Type': 'application/json'
+  };
 
   const { text_input } = JSON.parse(event.body);
 
@@ -16,7 +25,8 @@ export const handler = async (event, context) => {
   if (!ELEVENLABS_API_KEY || !ELEVENLABS_AGENT_ID) {
     return {
       statusCode: 500,
-      body: 'API keys not configured.'
+      body: 'API keys not configured.',
+      headers: headers
     };
   }
 
@@ -37,7 +47,8 @@ export const handler = async (event, context) => {
       const errorText = await response.text();
       return {
         statusCode: response.status,
-        body: `ElevenLabs Agent API error: ${errorText}`
+        body: `ElevenLabs Agent API error: ${errorText}`,
+        headers: headers
       };
     }
 
@@ -48,6 +59,7 @@ export const handler = async (event, context) => {
     return {
       statusCode: 200,
       headers: {
+        ...headers,
         'Content-Type': 'audio/mpeg'
       },
       body: Buffer.from(audioData).toString('base64'),
@@ -57,7 +69,8 @@ export const handler = async (event, context) => {
     console.error('Proxy Error:', error);
     return {
       statusCode: 500,
-      body: `Internal server error: ${error.message}`
+      body: `Internal server error: ${error.message}`,
+      headers: headers
     };
   }
 };
