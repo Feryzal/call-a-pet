@@ -1,19 +1,23 @@
-import fetch from 'node-fetch';
-
-exports.handler = async function(event, context) {
+export const handler = async (event, context) => {
   // Erlaubt nur POST-Anfragen
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
+    return {
+      statusCode: 405,
+      body: 'Method Not Allowed'
+    };
   }
 
   const { text_input } = JSON.parse(event.body);
-  
+
   // Rufe API-Schlüssel und Agent-ID aus den Umgebungsvariablen ab
   const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
   const ELEVENLABS_AGENT_ID = process.env.ELEVENLABS_AGENT_ID;
 
   if (!ELEVENLABS_API_KEY || !ELEVENLABS_AGENT_ID) {
-    return { statusCode: 500, body: 'API keys not configured.' };
+    return {
+      statusCode: 500,
+      body: 'API keys not configured.'
+    };
   }
 
   try {
@@ -24,7 +28,9 @@ exports.handler = async function(event, context) {
         'Content-Type': 'application/json',
         'xi-api-key': ELEVENLABS_API_KEY
       },
-      body: JSON.stringify({ text_input })
+      body: JSON.stringify({
+        text_input
+      })
     });
 
     if (!response.ok) {
@@ -37,11 +43,13 @@ exports.handler = async function(event, context) {
 
     // Wandle die Antwort in ein ArrayBuffer um (binäre Daten)
     const audioData = await response.arrayBuffer();
-    
+
     // Gib die Audio-Daten als Base64-kodierten String zurück
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'audio/mpeg' },
+      headers: {
+        'Content-Type': 'audio/mpeg'
+      },
       body: Buffer.from(audioData).toString('base64'),
       isBase64Encoded: true
     };
