@@ -10,25 +10,26 @@ export const handler = async (event) => {
   try { sdp = JSON.parse(event.body||'{}').sdp || ''; } catch {}
   if (!sdp) return { statusCode: 400, headers: cors(), body: 'Missing sdp' };
 
-  // 1) Token holen
   const u = new URL('https://api.elevenlabs.io/v1/convai/conversation/token');
   u.searchParams.set('agent_id', AGENT);
   const tokRes = await fetch(u, { headers:{'xi-api-key':ELEVEN_KEY} });
-  if(!tokRes.ok) return { statusCode: tokRes.status, headers: cors(), body: await tokRes.text() };
+  if (!tokRes.ok) return { statusCode: tokRes.status, headers: cors(), body: await tokRes.text() };
   const { token } = await tokRes.json();
 
-  // 2) WebRTC-Handshake serverseitig durchführen
   const r = await fetch('https://api.elevenlabs.io/v1/convai/conversation/webrtc', {
-    method:'POST', headers:{ 'authorization':`Bearer ${token}`, 'content-type':'application/sdp' }, body: sdp
+    method:'POST',
+    headers:{ 'authorization':`Bearer ${token}`, 'content-type':'application/sdp' },
+    body: sdp
   });
+
   const answer = await r.text();
-  if(!r.ok) return { statusCode: r.status, headers: cors(), body: answer };
+  if (!r.ok) return { statusCode: r.status, headers: cors(), body: answer };
 
   return { statusCode: 200, headers: { ...cors(), 'content-type':'application/sdp' }, body: answer };
 };
 
 const cors = () => ({
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type'
+  'Access-Control-Allow-Origin':'*',
+  'Access-Control-Allow-Methods':'POST, OPTIONS',
+  'Access-Control-Allow-Headers':'Content-Type'
 });
